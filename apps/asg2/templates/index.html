@@ -1,0 +1,29 @@
+[[extend 'layout.html']]
+
+<div class="section">
+   <!-- Put the table here -->
+   <h1 class="title">Bird</h1>
+   <div class="columns is-centered">
+   
+   <table class="table is-striped is-fullwidth">
+      <thead>
+        <tr>
+          <th>Bird Species</th>
+          <th>Weight</th>
+          <th>Diet</th>
+          <th>Habitat</th>
+        </tr>
+      </thead>
+      <tbody>
+         [[for bird in array:]]
+         <tr>
+            <td>[[=bird['bird'] ]]</td>
+            <td>[[=bird['weight'] ]]</td>
+            <td>[[=bird['diet'] ]]</td>
+            <td>[[=bird['habitat'] ]]</td>
+         </tr>
+         [[pass]]
+      </tbody>
+    </table>
+   </div>
+</div>
