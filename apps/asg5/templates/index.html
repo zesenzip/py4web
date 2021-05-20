@@ -1,0 +1,62 @@
+[[extend 'layout.html']]
+
+<style>
+[v-cloak] {
+     display: none;
+}
+</style>
+<div class="section" id="vue-target" v-cloak>
+  <!-- Put here your Vue.js template -->
+
+  <div class="title">Postlandia</div>
+  <div v-if="add_mode" class="container block">
+    <div class="field">
+      <div class="control">
+        <textarea type="text" v-model="add_textarea" class="textarea" placeholder="Enter new post here"></textarea>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="control">
+        <input type="submit" @click="add_post" value="Post" class="button is-primary">
+        <input type="submit" @click="set_add_status(false)" value="Cancel" class="button is-warning">
+      </div>
+    </div>
+
+  </div>
+  <div v-else="add_mode" class="container block">
+    <button @click="set_add_status(true)" class="button is-primary">
+      <i class="fa fa-plus fa-fw"></i>
+    </button>
+  </div>
+
+  <div v-for="row in rows.slice().reverse()" class="box">
+    <p class="has-text-black">{{row.content}}</p>
+    <p class="has-text-grey">{{row.full_name}}</p>
+    <button @click="delete_post(row._idx)" class="button is-danger">
+      <i class="fa fa-trash"></i>
+    </button>
+    <a @click="add_thumb(row._idx, true)">
+      <i v-if="row.thumb == true" class="fa fa-thumbs-up"></i>
+      <i v-else class="fa fa-thumbs-o-up"></i>
+    </a>
+    <a @click="add_thumb(row._idx, false)">
+      <i v-if="row.thumb == false" class="fa fa-thumbs-down"></i>
+      <i v-else class="fa fa-thumbs-o-down"></i>
+    </a>
+    <p class="has-text-black">{{row}}</p>
+  </div>
+</div>
+
+
+[[block page_scripts]]
+<!-- Loads the index-specific js for Vue -->
+<script>
+  let load_posts_url = "[[=XML(load_posts_url)]]";
+  let add_post_url = "[[=XML(add_post_url)]]";
+  let delete_post_url = "[[=XML(delete_post_url)]]";
+  let get_thumb_url = "[[=XML(get_thumb_url)]]";
+  let add_thumb_url = "[[=XML(add_thumb_url)]]";
+</script>
+<script src="js/index.js"></script>
+[[end]]
