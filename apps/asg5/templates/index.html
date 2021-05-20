@@ -30,21 +30,38 @@
     </button>
   </div>
 
-  <div v-for="row in rows.slice().reverse()" class="box">
+  <div v-for="row in rows.slice().reverse()" class="box has-background-grey-lighter">
     <p class="has-text-black">{{row.content}}</p>
     <p class="has-text-grey">{{row.full_name}}</p>
-    <button @click="delete_post(row._idx)" class="button is-danger">
-      <i class="fa fa-trash"></i>
-    </button>
-    <a @click="add_thumb(row._idx, true)">
+
+
+
+    <a  @click="add_thumb(row._idx, true)" 
+        @mouseenter="set_show_likers(true, row._idx)" 
+        @mouseleave="set_show_likers(false, row._idx)">
       <i v-if="row.thumb == true" class="fa fa-thumbs-up"></i>
       <i v-else class="fa fa-thumbs-o-up"></i>
     </a>
-    <a @click="add_thumb(row._idx, false)">
+    <a  @click="add_thumb(row._idx, false)" 
+        @mouseenter="set_show_haters(true, row._idx)" 
+        @mouseleave="set_show_haters(false, row._idx)">
       <i v-if="row.thumb == false" class="fa fa-thumbs-down"></i>
       <i v-else class="fa fa-thumbs-o-down"></i>
     </a>
+
+    <span v-if="row.show_likers"><p class="has-text-black">
+      {{row.likers}}
+    </p></span>
+    
+    <span v-if="row.show_haters"><p class="has-text-black">
+      {{row.haters}}
+    </p></span>
+    
+    <button v-if="user_id == row.user_id" @click="delete_post(row._idx)" class="button is-danger has-text-right">
+      <i class="fa fa-trash"></i>
+    </button>
     <p class="has-text-black">{{row}}</p>
+
   </div>
 </div>
 
@@ -57,6 +74,8 @@
   let delete_post_url = "[[=XML(delete_post_url)]]";
   let get_thumb_url = "[[=XML(get_thumb_url)]]";
   let add_thumb_url = "[[=XML(add_thumb_url)]]";
+  let get_likerhater_url = "[[=XML(get_likerhater_url)]]";
+  let get_user_url = "[[=XML(get_user_url)]]";
 </script>
 <script src="js/index.js"></script>
 [[end]]

@@ -25,6 +25,7 @@ session, db, T, auth, and tempates are examples of Fixtures.
 Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app will result in undefined behavior
 """
 
+from enum import Flag
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
 from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
@@ -44,7 +45,9 @@ def index():
         add_post_url = URL('add_post', signer=url_signer),
         delete_post_url = URL('delete_post', signer=url_signer),
         get_thumb_url = URL('get_thumb', signer=url_signer),
-        add_thumb_url = URL('add_thumb', signer=url_signer)
+        add_thumb_url = URL('add_thumb', signer=url_signer),
+        get_likerhater_url = URL('get_likerhater', signer=url_signer),
+        get_user_url = URL('get_user', signer=url_signer)
     )
 
 # This is our very first API function.
@@ -53,6 +56,12 @@ def index():
 def load_posts():
     rows = db(db.posts).select().as_list()
     return dict(rows=rows)
+
+@action('get_user')
+@action.uses(url_signer.verify(), db)
+def get_user():
+    return dict(user_id=get_user_id())
+
 
 @action('add_post', method="POST")
 @action.uses(url_signer.verify(), db)
@@ -72,11 +81,12 @@ def delete_post():
     assert id is not None
     db(db.posts.id == id).delete()
     return "ok"
+
 @action('get_thumb')
 @action.uses(url_signer.verify(), db)
 def get_thumb():
     post_id = request.params.get('post_id')
-    assert id is not None
+    assert post_id is not None
     row = db((db.thumbs.post_id == post_id) &
              (db.thumbs.user_id == get_user_id())).select().first()
     thumb = row.thumb if row is not None else None
@@ -85,16 +95,31 @@ def get_thumb():
 @action('add_thumb', method="POST")
 @action.uses(url_signer.verify(), db)
 def add_thumb():
-    post_id=request.json.get('post_id')
+    r = db(db.auth_user.email == get_user_email()).select().first()
+    full_name = r.first_name + " " + r.last_name if r is not None else "Unknown"
+    post_id = request.json.get('post_id')
     request_thumb = request.json.get('bool')
     assert post_id is not None
     assert request_thumb is not None
-    db.thumbs.update_or_insert(
+    id = db.thumbs.update_or_insert(
         ((db.thumbs.post_id == post_id) & (db.thumbs.user_id == get_user_id())),
         post_id=post_id,
         user_id=get_user_id(),
         thumb=request_thumb,
-        thumb=request_thumb
+        full_name=full_name
     )
+    print(full_name)
+    return dict(bool=request_thumb, full_name=full_name, id=id)
 
-    return dict(bool=request_thumb)
+@action('get_likerhater')
+@action.uses(url_signer.verify(), db)
+def get_likerhater():
+    post_id=request.params.get('post_id')
+    bool=request.params.get('bool')
+    assert post_id is not None
+    assert bool is not None
+    likerhater = db((db.thumbs.post_id == post_id) &
+             (db.thumbs.thumb == bool)).select().as_list()
+    print(likerhater)
+    return dict(likerhater=likerhater)
+
